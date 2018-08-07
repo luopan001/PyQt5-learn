@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @File  : learn007.py
+# @File  : learn012.py
 # @Author: Luopan
 # @Date  : 2018/8/6 17:20
 # @Desc  : 箱布局：在右下角放置了两个按钮。当我们改变应用窗口大小时，它们会相对于应用窗口不改变位置
