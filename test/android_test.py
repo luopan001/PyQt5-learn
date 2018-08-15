@@ -13,7 +13,7 @@ from PyQt5.QtGui import QRegExpValidator
 from PyQt5 import sip
 
 project_path = os.path.abspath(os.path.join(os.path.dirname(os.path.split(os.path.realpath(__file__))[0]), '.'))
-icon_path = "D:\\project_pro\\PyQt5-learn\\test\\android.png"
+icon_path = "D:\\project_pro\\PyQt5-learn\\test\\android.ico"
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -339,6 +339,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appName_1.clear()
         self.input_clear()
 
+        # 利用正则表达式，限制输入项
         # 0~100以内的数值，最多保留2位小数，包含各自的边界值。
         regx = QRegExp("^(\d?\d(\.\d{1,2})?|100)$")
         validator = QRegExpValidator(regx, self.throttleInput)
@@ -377,14 +378,23 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     # 获取设备信息
     def get_device_info(self):
         try:
-            cmd = 'adb devices'
-            self.info = os.popen(cmd).readlines()
-            self.deviceid = self.info[1].split('\t')[0]
-            # 获取手机系统版本
-            self.version = os.popen('adb shell getprop ro.build.version.release').readlines()[0].split('\r\n')[0]
-            self.printDeviceInfo.setPlainText("设备ID："+self.deviceid+"\n"+"手机版本："+self.version)
+            # 获取设备id
+            cmd ="adb devices"
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=False)
+            (output, err) = p.communicate()
+            deviceid = output.decode().split("\t")[0].split("\r\n")[-1]
+            # 获取安卓版本号
+            cmd ="adb shell getprop ro.build.version.release"
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=False)
+            (output, err) = p.communicate()
+            version = output.decode().split("\t")[0].split("\r\n")[0]
+            # 判断是否有设备连接，有则将设备信息打印在界面，无则提示客户
+            if deviceid.strip():
+                self.printDeviceInfo.setPlainText("设备ID：" + deviceid + "\n" + "手机版本：" + version)
+            else:
+                QMessageBox.information(self, "信息确认", "请检查设备是否已连接模拟器或者真机\n", QMessageBox.NoButton)
         except:
-            QMessageBox.information(self,"信息确认","请检查：\n1）设备是否已连接模拟器或者真机\n2）adb命令是否设置正确",QMessageBox.NoButton)
+            pass
 
 
 
@@ -429,7 +439,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             if self.printAppRoute_2.text() is not None:
                 cmd = self.aapt_path + ' dump badging ' + self.printAppRoute_2.text()
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE, shell=True)
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE, shell=False)
                 (output, err) = p.communicate()
                 match = re.compile("package: name='(\S+)' versionCode='(\d+)' versionName='(\S+)'").match(output.decode())
                 match_1 = re.compile("launchable-activity: name='(\S+)'  label=").search(output.decode())
@@ -546,8 +556,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     sum_1 = sum_1 + float(self.keyboardInput.text())
                 if self.appswitchInput.text().strip():
                     sum_1 = sum_1 + float(self.appswitchInput.text())
-                print("234")
-                print(sum_1)
                 if sum_1 == 100.00:
                     return True
         except:
@@ -663,7 +671,6 @@ class Log(object):
     def __init__(self):
         self.file_exists()
         self.logname = project_path + "\\" + 'Log\\'+ time.strftime('%Y-%m-%d') + '.log'
-        print(self.logname)
 
     def print_console(self, level, message):
         # 创建一个log
@@ -716,11 +723,9 @@ class Log(object):
     # 判断日志路径是否存在，不存在则创建
     def file_exists(self):
         if os.path.exists(project_path+ "\\" + 'Log'):
-            print("目录存在")
             pass
         else:
             os.makedirs(project_path + "\\" + 'Log')
-            print("目录不存在，创建")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
