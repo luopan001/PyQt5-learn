@@ -695,6 +695,9 @@ class Log(object):
         logger.addHandler(fh)
         logger.addHandler(ch)
 
+        fh.close()
+        ch.close()
+
         # 记录一条日志
         if level == 'info':
             logger.info(message)
