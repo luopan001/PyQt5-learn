@@ -3,7 +3,7 @@
 # @File  : .py
 # @Author: Luopan
 # @Date  : 2018/8/8 14:30
-# @Desc  : android，monkey测试辅助小工具。 继承自MainWindow
+# @Desc  : android，monkey测试辅助小工具。 本版本适用于不打包的处理。v1.0
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys,os,re,subprocess
